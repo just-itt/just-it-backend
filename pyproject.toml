@@ -10,6 +10,7 @@ packages = [{include = "just_it_backend"}]
 python = "^3.7"
 Django = "3.2.18"
 black = "^23.1.0"
+pre-commit = "2.9"
 
 
 [build-system]

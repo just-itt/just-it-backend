@@ -9,18 +9,23 @@ https://docs.djangoproject.com/en/3.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
-
+import json
+import os
 from pathlib import Path
+import pymysql
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+secrets_file = os.path.join(BASE_DIR, "secrets.json")
+with open(secrets_file) as f:
+    secrets = json.loads(f.read())
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-xzp@j&g(e@0*enr(dyxmz95bf9%blj48zi02gt#uq=!7_4^-&7"
+SECRET_KEY = secrets.get("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -72,11 +77,15 @@ WSGI_APPLICATION = "justit.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
-
+pymysql.install_as_MySQLdb()
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": "justit",
+        "USER": secrets.get("DATABASES").get("USER"),
+        "PASSWORD": secrets.get("DATABASES").get("PASSWORD"),
+        "HOST": secrets.get("DATABASES").get("HOST"),
+        "PORT": "3306",
     }
 }
 

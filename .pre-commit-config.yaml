@@ -5,6 +5,6 @@ repos:
       - id: black
         language_version: python3.7
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: ''  # Use the sha / tag you want to point at
+    rev: v0.910
     hooks:
       - id: mypy

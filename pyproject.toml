@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "just-it-backend"
+version = "0.1.0"
+description = "just-it backend"
+authors = ["2jisu <jisu.jjang88@gmail.com>"]
+readme = "README.md"
+packages = [{include = "just_it_backend"}]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+Django = "3.2.18"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

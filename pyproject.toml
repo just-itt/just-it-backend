@@ -9,6 +9,7 @@ packages = [{include = "just_it_backend"}]
 [tool.poetry.dependencies]
 python = "^3.7"
 Django = "3.2.18"
+black = "^23.1.0"
 
 
 [build-system]

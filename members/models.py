@@ -8,3 +8,4 @@ class Member(models.Model):
     profile_image = models.FileField(upload_to="uploads/%Y/%m/%d", null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True, null=True)
+    last_login_at = models.DateTimeField(null=True)

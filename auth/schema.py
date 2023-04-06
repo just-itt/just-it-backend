@@ -17,23 +17,23 @@ class AuthBearer(HttpBearer):
     def authenticate(self, request, token):
         try:
             if not self.JWT_SIGNING_KEY:
-                return 401, {'message': 'Unauthorized'}
+                return 401, {"message": "Unauthorized"}
             jwt.decode(token, self.JWT_SIGNING_KEY, algorithms=["HS256"])
         except jwt.ExpiredSignatureError:
-            return 401, {'message': 'Unauthorized'}
+            return 401, {"message": "Unauthorized"}
         except jwt.InvalidTokenError:
-            return 401, {'message': 'Unauthorized'}
+            return 401, {"message": "Unauthorized"}
         else:
             return True
 
     def create_token(self, pk: int, email: str):
-        expires = datetime.datetime.utcnow() + datetime.timedelta(seconds=TOKEN_VALID_SECONDS)
+        expires = datetime.datetime.utcnow() + datetime.timedelta(
+            seconds=TOKEN_VALID_SECONDS
+        )
         token = jwt.encode(
-            {
-                'id': pk,
-                'email': email,
-                'exp': expires.strftime("%Y-%m-%d %H:%M:%S")
-            }, self.JWT_SIGNING_KEY)
+            {"id": pk, "email": email, "exp": expires.strftime("%Y-%m-%d %H:%M:%S")},
+            self.JWT_SIGNING_KEY,
+        )
         return Token(token=token, expires=expires)
 
 

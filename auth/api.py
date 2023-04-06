@@ -14,7 +14,7 @@ from members.models import Member
 router = Router()
 
 
-@router.post('/login', response={200: Token, 400: Message})
+@router.post("/login", response={200: Token, 400: Message})
 def login(request, payload: Login):
     if not Member.objects.filter(email=payload.email):
         return 400, Message(message="Member is not exists")
@@ -27,7 +27,7 @@ def login(request, payload: Login):
     return token
 
 
-@router.post('/join', response={200: Message, 400: Message})
+@router.post("/join", response={200: Message, 400: Message})
 def join(request, payload: Join):
     if Member.objects.filter(email=payload.email):
         return 400, Message(message="Email already exists")
@@ -43,16 +43,21 @@ def join(request, payload: Join):
     return Message(message="Success!")
 
 
-@router.post('/email', response={200: Message, 400: Message})
+@router.post("/email", response={200: Message, 400: Message})
 def email_auth(request, payload: EmailAuthentication):
     if Member.objects.filter(email=payload.email):
         return 400, Message(message="Email already authorized")
     auth_code = make_auth_code()
-    Email.objects.create(email=payload.email, auth_code=auth_code, expire_at=datetime.datetime.utcnow()+datetime.timedelta(minutes=EMAIL_AUTH_CODE_VALID_MINUTES))
+    Email.objects.create(
+        email=payload.email,
+        auth_code=auth_code,
+        expire_at=datetime.datetime.utcnow()
+        + datetime.timedelta(minutes=EMAIL_AUTH_CODE_VALID_MINUTES),
+    )
     return Message(message="Success!")
 
 
-@router.post('/email/check', response={200: Message, 400: Message})
+@router.post("/email/check", response={200: Message, 400: Message})
 def email_auth(request, payload: EmailAuthentication):
     email_auth = Email.objects.filter(email=payload.email, is_certified=False).first()
     utc_now = datetime.datetime.utcnow()

@@ -55,3 +55,7 @@ class Join(Schema):
 
 class EmailAuthentication(Schema):
     email: str
+
+
+class EmailAuthenticationCode(EmailAuthentication):
+    auth_code: str

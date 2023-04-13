@@ -1,37 +1,39 @@
 import datetime
+import time
 from typing import Optional
 
 import jwt
 from ninja import Schema
 from ninja.security import HttpBearer
 
-from common.consts import TOKEN_VALID_SECONDS
+from common.consts import TOKEN_VALID_MINUTES
 from justit import settings
 
 
 class AuthBearer(HttpBearer):
-    # JWT secret key is set up in settings.py
     JWT_SIGNING_KEY = getattr(settings, "JWT_SIGNING_KEY", None)
 
-    # TODO: 보강 필요
     def authenticate(self, request, token):
         try:
             if not self.JWT_SIGNING_KEY:
-                return 401, {"message": "Unauthorized"}
-            jwt.decode(token, self.JWT_SIGNING_KEY, algorithms=["HS256"])
+                return 401
+            decoded_token = jwt.decode(
+                token, self.JWT_SIGNING_KEY, algorithms=["HS256"]
+            )
         except jwt.ExpiredSignatureError:
-            return 401, {"message": "Unauthorized"}
+            return 401
         except jwt.InvalidTokenError:
-            return 401, {"message": "Unauthorized"}
+            return 401
         else:
-            return True
+            return decoded_token
 
     def create_token(self, pk: int, email: str):
         expires = datetime.datetime.utcnow() + datetime.timedelta(
-            seconds=TOKEN_VALID_SECONDS
+            minutes=TOKEN_VALID_MINUTES
         )
+        expires_timestamp = int(time.mktime(expires.timetuple()))
         token = jwt.encode(
-            {"id": pk, "email": email, "exp": expires.strftime("%Y-%m-%d %H:%M:%S")},
+            {"id": pk, "email": email, "exp": expires_timestamp},
             self.JWT_SIGNING_KEY,
         )
         return Token(token=token, expires=expires)

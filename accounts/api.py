@@ -29,7 +29,7 @@ def login(request, payload: Login):
     member = Member.objects.filter(email=payload.email).get()
     if not check_password(payload.password, member.password):
         return 400, Message(message="Password is not correct")
-    token = AuthBearer().create_token(member.pk, payload.password)
+    token = AuthBearer().create_token(member.pk, payload.email)
     member.last_login_at = datetime.datetime.utcnow()
     member.save()
     return token

@@ -11,9 +11,7 @@ class MemberStatusEnum(Enum):
 
 
 class MemberIn(Schema):
-    id: int
-    nickname: str
-    profile_image: Optional[str]
+    nickname: Optional[str]
 
 
 class MemberOut(Schema):

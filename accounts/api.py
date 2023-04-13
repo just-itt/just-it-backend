@@ -119,6 +119,21 @@ def find_password_auth_check(request, payload: EmailAuthenticationCode):
         return 400, Message(message="Authentication code is not valid")
     if email_auth.expire_at < utc_now:
         return 400, Message(message="Authentication code has expired")
+    email_auth.is_auth = True
+    email_auth.save()
+    return Message(message="Success!")
+
+
+@router.post("/reset-pw", response={200: Message, 400: Error})
+def reset_password(request, payload: Login):
+    email_auth = EmailAuth.objects.filter(
+        email=payload.email, type=EmailAuthenticationTypeEnum.PASSWORD, is_auth=True
+    )
+    if not email_auth:
+        return 400, {"message": "Email authentication has not been completed"}
+    member = get_object_or_404(Member, email=payload.email)
+    member.password = make_password(payload.password)
+    member.save()
     EmailAuth.objects.filter(
         email=payload.email, type=EmailAuthenticationTypeEnum.PASSWORD
     ).all().delete()

@@ -2,6 +2,7 @@ import datetime
 
 from django.contrib.auth.hashers import make_password, check_password
 from django.core.mail import EmailMessage
+from django.shortcuts import get_object_or_404
 from ninja import Router
 
 from accounts.models import EmailAuth
@@ -27,7 +28,7 @@ router = Router()
 def login(request, payload: Login):
     if not Member.objects.filter(email=payload.email):
         return 400, Message(message="Member is not exists")
-    member = Member.objects.filter(email=payload.email).get()
+    member = get_object_or_404(Member, email=payload.email)
     if not check_password(payload.password, member.password):
         return 400, Message(message="Password is not correct")
     token = AuthBearer().create_token(member.pk, payload.email)
@@ -53,7 +54,7 @@ def join(request, payload: Join):
 
 
 @router.post("/email-auth/send", response={200: Message, 400: Error})
-def email_auth_send(request, payload: EmailAuthentication):
+def join_auth_send(request, payload: EmailAuthentication):
     if Member.objects.filter(email=payload.email):
         return 400, Message(message="Email already authorized")
     auth_code = make_auth_code()
@@ -73,7 +74,7 @@ def email_auth_send(request, payload: EmailAuthentication):
 
 
 @router.post("/email-auth/check", response={200: Message, 400: Error})
-def email_auth_check(request, payload: EmailAuthenticationCode):
+def join_auth_check(request, payload: EmailAuthenticationCode):
     email_auth = EmailAuth.objects.filter(
         email=payload.email, type=EmailAuthenticationTypeEnum.JOIN
     ).last()
@@ -89,7 +90,7 @@ def email_auth_check(request, payload: EmailAuthenticationCode):
 
 
 @router.post("/find-pw/send", response={200: Message, 400: Error})
-def email_auth_send(request, payload: EmailAuthentication):
+def find_password_auth_send(request, payload: EmailAuthentication):
     if not Member.objects.filter(email=payload.email):
         return 400, Message(message="Member is not exists")
     auth_code = make_auth_code()
@@ -109,7 +110,7 @@ def email_auth_send(request, payload: EmailAuthentication):
 
 
 @router.post("/find-pw/check", response={200: Message, 400: Error})
-def email_auth_check(request, payload: EmailAuthenticationCode):
+def find_password_auth_check(request, payload: EmailAuthenticationCode):
     email_auth = EmailAuth.objects.filter(
         email=payload.email, type=EmailAuthenticationTypeEnum.PASSWORD
     ).last()

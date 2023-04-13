@@ -1,5 +1,6 @@
 import datetime
 import time
+from enum import Enum
 from typing import Optional
 
 import jwt
@@ -61,3 +62,8 @@ class EmailAuthentication(Schema):
 
 class EmailAuthenticationCode(EmailAuthentication):
     auth_code: str
+
+
+class EmailAuthenticationTypeEnum(Enum):
+    JOIN = "JOIN"
+    PASSWORD = "PASSWORD"

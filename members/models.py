@@ -4,8 +4,8 @@ from django.utils.translation import gettext_lazy as _
 
 class Member(models.Model):
     class MemberStatus(models.TextChoices):
-        ACTIVE = "active", _("active")
-        WITHDRAW = "withdraw", _("withdraw")
+        ACTIVE = "ACTIVE", _("ACTIVE")
+        WITHDRAW = "WITHDRAW", _("WITHDRAW")
 
     email = models.EmailField()
     password = models.CharField(max_length=128)

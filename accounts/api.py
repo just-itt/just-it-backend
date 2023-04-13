@@ -15,14 +15,14 @@ from accounts.schema import (
 )
 from accounts.utils import make_auth_code
 from common.consts import EMAIL_AUTH_CODE_VALID_MINUTES
-from common.schema import Message
+from common.schema import Message, Error
 from members.utils import make_nickname
 from members.models import Member
 
 router = Router()
 
 
-@router.post("/login", response={200: Token, 400: Message})
+@router.post("/login", response={200: Token, 400: Error})
 def login(request, payload: Login):
     if not Member.objects.filter(email=payload.email):
         return 400, Message(message="Member is not exists")
@@ -35,7 +35,7 @@ def login(request, payload: Login):
     return token
 
 
-@router.post("/join", response={200: Message, 400: Message})
+@router.post("/join", response={200: Message, 400: Error})
 def join(request, payload: Join):
     if Member.objects.filter(email=payload.email):
         return 400, Message(message="Email already exists")
@@ -51,7 +51,7 @@ def join(request, payload: Join):
     return Message(message="Success!")
 
 
-@router.post("/email-auth/send", response={200: Message, 400: Message})
+@router.post("/email-auth/send", response={200: Message, 400: Error})
 def email_auth_send(request, payload: EmailAuthentication):
     if Member.objects.filter(email=payload.email):
         return 400, Message(message="Email already authorized")
@@ -68,7 +68,7 @@ def email_auth_send(request, payload: EmailAuthentication):
     return Message(message="Success!")
 
 
-@router.post("/email-auth/check", response={200: Message, 400: Message})
+@router.post("/email-auth/check", response={200: Message, 400: Error})
 def email_auth_check(request, payload: EmailAuthenticationCode):
     email_auth = EmailAuth.objects.filter(email=payload.email).last()
     utc_now = datetime.datetime.utcnow()

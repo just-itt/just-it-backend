@@ -13,4 +13,5 @@ class EmailAuth(models.Model):
     type = models.CharField(
         max_length=12, choices=EmailAuthType.choices, default=EmailAuthType.JOIN
     )
+    is_auth = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)

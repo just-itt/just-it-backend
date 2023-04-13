@@ -124,7 +124,7 @@ def find_password_auth_check(request, payload: EmailAuthenticationCode):
     return Message(message="Success!")
 
 
-@router.post("/reset-pw", response={200: Message, 400: Error})
+@router.patch("/reset-pw", response={200: Message, 400: Error})
 def reset_password(request, payload: Login):
     email_auth = EmailAuth.objects.filter(
         email=payload.email, type=EmailAuthenticationTypeEnum.PASSWORD, is_auth=True

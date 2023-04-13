@@ -12,6 +12,7 @@ from accounts.schema import (
     Join,
     EmailAuthentication,
     EmailAuthenticationCode,
+    EmailAuthenticationTypeEnum,
 )
 from accounts.utils import make_auth_code
 from common.consts import EMAIL_AUTH_CODE_VALID_MINUTES
@@ -61,20 +62,63 @@ def email_auth_send(request, payload: EmailAuthentication):
         auth_code=auth_code,
         expire_at=datetime.datetime.utcnow()
         + datetime.timedelta(minutes=EMAIL_AUTH_CODE_VALID_MINUTES),
+        type=EmailAuthenticationTypeEnum.JOIN,
     )
     EmailMessage(
-        subject="[Just it] 인증 코드", body=f"인증 코드는 [{auth_code}]입니다.", to=[payload.email]
+        subject="[Just it] 회원 가입 인증 코드",
+        body=f"회원 가입 인증 코드는 [{auth_code}]입니다.",
+        to=[payload.email],
     ).send()
     return Message(message="Success!")
 
 
 @router.post("/email-auth/check", response={200: Message, 400: Error})
 def email_auth_check(request, payload: EmailAuthenticationCode):
-    email_auth = EmailAuth.objects.filter(email=payload.email).last()
+    email_auth = EmailAuth.objects.filter(
+        email=payload.email, type=EmailAuthenticationTypeEnum.JOIN
+    ).last()
     utc_now = datetime.datetime.utcnow()
     if email_auth.auth_code != payload.auth_code:
         return 400, Message(message="Authentication code is not valid")
     if email_auth.expire_at < utc_now:
         return 400, Message(message="Authentication code has expired")
-    EmailAuth.objects.filter(email=payload.email).all().delete()
+    EmailAuth.objects.filter(
+        email=payload.email, type=EmailAuthenticationTypeEnum.JOIN
+    ).all().delete()
+    return Message(message="Success!")
+
+
+@router.post("/find-pw/send", response={200: Message, 400: Error})
+def email_auth_send(request, payload: EmailAuthentication):
+    if not Member.objects.filter(email=payload.email):
+        return 400, Message(message="Member is not exists")
+    auth_code = make_auth_code()
+    EmailAuth.objects.create(
+        email=payload.email,
+        auth_code=auth_code,
+        expire_at=datetime.datetime.utcnow()
+        + datetime.timedelta(minutes=EMAIL_AUTH_CODE_VALID_MINUTES),
+        type=EmailAuthenticationTypeEnum.PASSWORD,
+    )
+    EmailMessage(
+        subject="[Just it] 비밀 번호 찾기 인증 코드",
+        body=f"비밀 번호 찾기 인증 코드는 [{auth_code}]입니다.",
+        to=[payload.email],
+    ).send()
+    return Message(message="Success!")
+
+
+@router.post("/find-pw/check", response={200: Message, 400: Error})
+def email_auth_check(request, payload: EmailAuthenticationCode):
+    email_auth = EmailAuth.objects.filter(
+        email=payload.email, type=EmailAuthenticationTypeEnum.PASSWORD
+    ).last()
+    utc_now = datetime.datetime.utcnow()
+    if email_auth.auth_code != payload.auth_code:
+        return 400, Message(message="Authentication code is not valid")
+    if email_auth.expire_at < utc_now:
+        return 400, Message(message="Authentication code has expired")
+    EmailAuth.objects.filter(
+        email=payload.email, type=EmailAuthenticationTypeEnum.PASSWORD
+    ).all().delete()
     return Message(message="Success!")

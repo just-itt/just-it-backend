@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "corsheaders",
+    "storages",
     "members.apps.MembersConfig",
     "accounts.apps.AccountsConfig",
 ]
@@ -151,3 +152,13 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 SERVER_EMAIL = EMAIL_HOST_USER
 
 CORS_ALLOW_ALL_ORIGINS = True
+
+DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+AWS_S3_SECURE_URLS = False  # use http instead of https
+AWS_QUERYSTRING_AUTH = (
+    False  # don't add complex authentication-related query parameters for requests
+)
+
+AWS_S3_ACCESS_KEY_ID = secrets.get("S3").get("AWS_S3_ACCESS_KEY_ID")
+AWS_S3_SECRET_ACCESS_KEY = secrets.get("S3").get("AWS_S3_SECRET_ACCESS_KEY")
+AWS_STORAGE_BUCKET_NAME = secrets.get("S3").get("AWS_STORAGE_BUCKET_NAME")

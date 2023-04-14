@@ -81,7 +81,7 @@ def join_auth_check(request, payload: EmailAuthenticationCode):
     utc_now = datetime.datetime.utcnow()
     if email_auth.auth_code != payload.auth_code:
         return 400, Message(message="Authentication code is not valid")
-    if email_auth.expire_at < utc_now:
+    if email_auth.expire_at <= utc_now:
         return 400, Message(message="Authentication code has expired")
     EmailAuth.objects.filter(
         email=payload.email, type=EmailAuthenticationTypeEnum.JOIN
@@ -117,7 +117,7 @@ def find_password_auth_check(request, payload: EmailAuthenticationCode):
     utc_now = datetime.datetime.utcnow()
     if email_auth.auth_code != payload.auth_code:
         return 400, Message(message="Authentication code is not valid")
-    if email_auth.expire_at < utc_now:
+    if email_auth.expire_at <= utc_now:
         return 400, Message(message="Authentication code has expired")
     email_auth.is_auth = True
     email_auth.save()
@@ -127,7 +127,10 @@ def find_password_auth_check(request, payload: EmailAuthenticationCode):
 @router.patch("/reset-pw", response={200: Message, 400: Error})
 def reset_password(request, payload: Login):
     email_auth = EmailAuth.objects.filter(
-        email=payload.email, type=EmailAuthenticationTypeEnum.PASSWORD, is_auth=True
+        email=payload.email,
+        type=EmailAuthenticationTypeEnum.PASSWORD,
+        is_auth=True,
+        expire_at__lte=datetime.datetime.utcnow(),
     )
     if not email_auth:
         return 400, {"message": "Email authentication has not been completed"}

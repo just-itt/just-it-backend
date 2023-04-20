@@ -5,8 +5,8 @@ from ninja.responses import codes_4xx
 from accounts.schema import (
     AuthBearer,
 )
-from common.schema import Error
-from members.schema import MemberOut, MemberIn
+from common.schema import Error, Message
+from members.schema import MemberOut, MemberIn, MemberStatusEnum
 from members.models import Member
 
 router = Router(auth=AuthBearer())
@@ -33,3 +33,13 @@ def update_member(request, payload: MemberIn):
             setattr(member, attr, value)
     member.save()
     return member
+
+
+@router.patch("/withdraw", response={200: Message})
+def withdraw(request):
+    if request.auth == 401:
+        return 401, {"message": "Unauthorized"}
+    member = get_object_or_404(Member, id=request.auth.get("id"))
+    member.status = MemberStatusEnum.WITHDRAW
+    member.save()
+    return 200, {"message": "Success!"}

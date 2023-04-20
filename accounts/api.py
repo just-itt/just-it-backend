@@ -92,8 +92,9 @@ def join_auth_check(request, payload: EmailAuthenticationCode):
 
 @router.post("/find-pw/send", response={200: Message, 400: Error})
 def find_password_auth_send(request, payload: EmailAuthentication):
-    if not Member.objects.filter(email=payload.email):
-        return 400, Message(message="Member is not exists")
+    get_object_or_404(
+        Member.objects.filter(email=payload.email, status=MemberStatusEnum.ACTIVE)
+    )
     auth_code = make_auth_code()
     EmailAuth.objects.create(
         email=payload.email,
@@ -113,13 +114,13 @@ def find_password_auth_send(request, payload: EmailAuthentication):
 @router.post("/find-pw/check", response={200: Message, 400: Error})
 def find_password_auth_check(request, payload: EmailAuthenticationCode):
     email_auth = EmailAuth.objects.filter(
-        email=payload.email, type=EmailAuthenticationTypeEnum.PASSWORD
+        email=payload.email,
+        type=EmailAuthenticationTypeEnum.PASSWORD,
+        expire_at__lte=datetime.datetime.utcnow(),
+        is_auth=False,
     ).last()
-    utc_now = datetime.datetime.utcnow()
     if email_auth.auth_code != payload.auth_code:
         return 400, Message(message="Authentication code is not valid")
-    if email_auth.expire_at < utc_now:
-        return 400, Message(message="Authentication code has expired")
     email_auth.is_auth = True
     email_auth.save()
     return Message(message="Success!")
@@ -135,7 +136,9 @@ def reset_password(request, payload: Login):
     )
     if not email_auth:
         return 400, {"message": "Email authentication has not been completed"}
-    member = get_object_or_404(Member, email=payload.email)
+    member = get_object_or_404(
+        Member, email=payload.email, status=MemberStatusEnum.ACTIVE
+    )
     member.password = make_password(payload.password)
     member.save()
     EmailAuth.objects.filter(

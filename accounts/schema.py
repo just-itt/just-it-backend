@@ -7,7 +7,7 @@ import jwt
 from ninja import Schema
 from ninja.security import HttpBearer
 
-from common.consts import TOKEN_VALID_MINUTES
+from common.consts import TOKEN_VALID_DAYS
 from justit import settings
 
 
@@ -29,9 +29,7 @@ class AuthBearer(HttpBearer):
             return decoded_token
 
     def create_token(self, pk: int, email: str):
-        expires = datetime.datetime.utcnow() + datetime.timedelta(
-            minutes=TOKEN_VALID_MINUTES
-        )
+        expires = datetime.datetime.utcnow() + datetime.timedelta(days=TOKEN_VALID_DAYS)
         expires_timestamp = int(time.mktime(expires.timetuple()))
         token = jwt.encode(
             {"id": pk, "email": email, "exp": expires_timestamp},

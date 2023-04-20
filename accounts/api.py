@@ -18,6 +18,7 @@ from accounts.schema import (
 from accounts.utils import make_auth_code
 from common.consts import EMAIL_AUTH_CODE_VALID_MINUTES
 from common.schema import Message, Error
+from members.schema import MemberStatusEnum
 from members.utils import make_nickname
 from members.models import Member
 
@@ -26,9 +27,9 @@ router = Router()
 
 @router.post("/login", response={200: Token, 400: Error})
 def login(request, payload: Login):
-    if not Member.objects.filter(email=payload.email):
-        return 400, Message(message="Member is not exists")
-    member = get_object_or_404(Member, email=payload.email)
+    member = get_object_or_404(
+        Member, email=payload.email, status=MemberStatusEnum.ACTIVE
+    )
     if not check_password(payload.password, member.password):
         return 400, Message(message="Password is not correct")
     token = AuthBearer().create_token(member.pk, payload.email)

@@ -19,7 +19,7 @@ from accounts.utils import make_auth_code
 from common.consts import EMAIL_AUTH_CODE_VALID_MINUTES
 from common.schema import Message, Error
 from members.schema import MemberStatusEnum
-from members.utils import make_nickname
+from common.utils.member import make_nickname
 from members.models import Member
 
 router = Router()

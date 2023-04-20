@@ -10,7 +10,7 @@ class Member(models.Model):
     email = models.EmailField()
     password = models.CharField(max_length=128)
     nickname = models.CharField(max_length=128)
-    profile_image = models.FileField(upload_to="uploads/%Y/%m/%d", null=True)
+    profile_image = models.FilePathField(null=True)
     status = models.CharField(
         max_length=12, choices=MemberStatus.choices, default=MemberStatus.ACTIVE
     )

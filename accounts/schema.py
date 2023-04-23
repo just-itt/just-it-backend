@@ -51,7 +51,6 @@ class Login(Schema):
 class Join(Schema):
     email: str
     password: str
-    nickname: Optional[str]
 
 
 class EmailAuthentication(Schema):

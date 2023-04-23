@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "storages",
     "members.apps.MembersConfig",
     "accounts.apps.AccountsConfig",
+    "posts.apps.PostsConfig",
 ]
 
 MIDDLEWARE = [

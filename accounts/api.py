@@ -48,10 +48,9 @@ def join(request, payload: Join):
             nickname = make_nickname()
         else:
             break
-    new_member = payload.dict()
-    new_member["password"] = make_password(payload.password)
-    new_member["nickname"] = nickname
-    Member.objects.create(**new_member)
+    Member.objects.create(
+        email=payload.email, password=make_password(payload.password), nickname=nickname
+    )
     return Message(message="Success!")
 
 

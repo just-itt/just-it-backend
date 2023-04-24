@@ -49,7 +49,7 @@ def withdraw(request):
 
 
 @router.post("/me/profile-image", response={200: MemberOut, codes_4xx: Error})
-def post_member_profile_image(request, file: UploadedFile = File(...)):
+def add_member_profile_image(request, file: UploadedFile = File(...)):
     if request.auth == 401:
         return 401, {"message": "Unauthorized"}
     member = get_object_or_404(

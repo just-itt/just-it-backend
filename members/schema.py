@@ -23,3 +23,8 @@ class MemberOut(Schema):
     last_login_at: Optional[datetime]
     created_at: datetime
     updated_at: Optional[datetime]
+
+
+class UpdatePassword(Schema):
+    origin_password: str
+    new_password: str

@@ -85,7 +85,7 @@ def update_password(request, payload: UpdatePassword):
         Member, id=request.auth.get("id"), status=MemberStatusEnum.ACTIVE.value
     )
     if member.password != make_password(payload.origin_password):
-        return 400, Error(message="Password is wrong")
+        return 400, Error(message="Password is not correct")
     member.password = make_password(payload.new_password)
     member.save()
     return Message(message="Success!")

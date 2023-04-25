@@ -14,6 +14,12 @@ class TagOptionOutWithTag(Schema):
     title: str
     tag_title: str
 
+    @staticmethod
+    def resolve_tag_title(obj):
+        if not obj.tag:
+            return None
+        return obj.tag.title
+
 
 class TagOut(Schema):
     id: int

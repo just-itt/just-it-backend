@@ -11,10 +11,6 @@ class PostImageOut(Schema):
     ratio: str
 
 
-class PostTagOut(Schema):
-    tag_option: TagOptionOutWithTag = Field(None)
-
-
 class PostIn(Schema):
     title: str
     content: str
@@ -41,4 +37,4 @@ class PostOut(Schema):
 
 class PostOutWithImageAndTags(PostOut):
     image: PostImageOut
-    tag_options: List[PostTagOut] = Field(None, alias="tagoption_set")
+    tag_options: List[TagOptionOutWithTag] = None

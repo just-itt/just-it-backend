@@ -90,7 +90,7 @@ def join_auth_check(request, payload: EmailAuthenticationCode):
     return Message(message="Success!")
 
 
-@router.post("/find-pw/send", response={200: Message, 400: Error})
+@router.post("/find-pw/send", response={200: Message})
 def find_password_auth_send(request, payload: EmailAuthentication):
     get_object_or_404(Member, email=payload.email, status=MemberStatusEnum.ACTIVE.value)
     auth_code = make_auth_code()

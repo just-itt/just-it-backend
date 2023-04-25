@@ -21,7 +21,7 @@ def get_member(request):
     return get_object_or_404(Member, id=request.auth.get("id"))
 
 
-@router.patch("/me", response={200: MemberOut, codes_4xx: Error})
+@router.patch("/me", response={200: MemberOut, 400: Error, 401: Error})
 def update_member(request, payload: MemberIn):
     if request.auth == 401:
         return 401, Error(message="Unauthorized")
@@ -37,7 +37,7 @@ def update_member(request, payload: MemberIn):
     return member
 
 
-@router.patch("/withdraw", response={200: Message})
+@router.patch("/withdraw", response={200: Message, 401: Error})
 def withdraw(request):
     if request.auth == 401:
         return 401, Error(message="Unauthorized")
@@ -49,7 +49,7 @@ def withdraw(request):
     return Message(message="Success!")
 
 
-@router.post("/me/profile-image", response={200: MemberOut, codes_4xx: Error})
+@router.post("/me/profile-image", response={200: MemberOut, 401: Error})
 def create_member_profile_image(request, file: UploadedFile = File(...)):
     if request.auth == 401:
         return 401, Error(message="Unauthorized")
@@ -65,7 +65,7 @@ def create_member_profile_image(request, file: UploadedFile = File(...)):
     return member
 
 
-@router.delete("/me/profile-image", response={200: MemberOut, codes_4xx: Error})
+@router.delete("/me/profile-image", response={200: MemberOut, 401: Error})
 def delete_member_profile_image(request):
     if request.auth == 401:
         return 401, Error(message="Unauthorized")
@@ -79,8 +79,10 @@ def delete_member_profile_image(request):
     return member
 
 
-@router.patch("/me/pw", response={200: Message, 400: Error})
+@router.patch("/me/pw", response={200: Message, 400: Error, 401: Error})
 def update_password(request, payload: UpdatePassword):
+    if request.auth == 401:
+        return 401, Error(message="Unauthorized")
     member = get_object_or_404(
         Member, id=request.auth.get("id"), status=MemberStatusEnum.ACTIVE.value
     )

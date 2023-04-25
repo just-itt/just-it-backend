@@ -55,11 +55,12 @@ def add_member_profile_image(request, file: UploadedFile = File(...)):
     member = get_object_or_404(
         Member, id=request.auth.get("id"), status=MemberStatusEnum.ACTIVE.value
     )
-    if not member.profile_image:
-        member.profile_image = S3ImgUploader().upload(
-            file=file, domain=f"images/members/{member.id}"
-        )
-        member.save()
+    if member.profile_image:
+        S3ImgUploader().delete(member.profile_image)
+    member.profile_image = S3ImgUploader().upload(
+        file=file, domain=f"images/members/{member.id}"
+    )
+    member.save()
     return member
 
 

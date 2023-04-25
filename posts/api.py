@@ -18,7 +18,7 @@ router = Router(auth=AuthBearer())
 @router.get("", response={200: List[PostOutWithImageAndTags], 401: Error})
 def get_posts(request):
     if request.auth == 401:
-        return 401, {"message": "Unauthorized"}
+        return 401, Error(message="Unauthorized")
     return (
         Post.objects.filter(author=request.auth.get("id"), is_deleted=False)
         .prefetch_related("tagoption_set")
@@ -29,14 +29,14 @@ def get_posts(request):
 @router.get("/{post_id}", response={200: PostOutWithImageAndTags, 401: Error})
 def get_post(request, post_id: int):
     if request.auth == 401:
-        return 401, {"message": "Unauthorized"}
+        return 401, Error(message="Unauthorized")
     return get_object_or_404(Post, id=post_id, is_deleted=False)
 
 
 @router.post("", response={200: PostOutWithImageAndTags, codes_4xx: Error})
 def create_post(request, payload: CreatePost, image: UploadedFile = File(...)):
     if request.auth == 401:
-        return 401, {"message": "Unauthorized"}
+        return 401, Error(message="Unauthorized")
     post = Post.objects.create(
         title=payload.title, content=payload.content, author_id=request.auth.get("id")
     )
@@ -55,7 +55,7 @@ def update_post(
     image: Optional[UploadedFile] = File(...),
 ):
     if request.auth == 401:
-        return 401, {"message": "Unauthorized"}
+        return 401, Error(message="Unauthorized")
 
     post = get_object_or_404(Post, id=post_id, is_deleted=False)
     for attr, value in payload.dict().items():
@@ -88,4 +88,4 @@ def delete_post(request, post_id: int):
     post = get_object_or_404(Post, id=post_id)
     post.is_deleted = True
     post.save()
-    return 200, {"message": "Success!"}
+    return Message(message="Success!")

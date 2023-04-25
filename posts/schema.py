@@ -7,7 +7,6 @@ from tags.schema import TagOptionOutWithTag
 
 
 class PostImageOut(Schema):
-    id: int
     image: str
     ratio: str
 
@@ -19,7 +18,15 @@ class PostTagOut(Schema):
 class PostIn(Schema):
     title: str
     content: str
+
+
+class CreatePost(PostIn):
     ratio: str
+    tag_options: List[int]
+
+
+class UpdatePost(PostIn):
+    ratio: Optional[str]
     tag_options: List[int]
 
 

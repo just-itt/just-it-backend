@@ -2,8 +2,8 @@ from ninja import Schema
 
 
 class Message(Schema):
-    message: str
+    detail: str
 
 
 class Error(Schema):
-    message: str
+    detail: str

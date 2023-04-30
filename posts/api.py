@@ -21,18 +21,28 @@ from posts.schema import (
 router = Router(auth=AuthBearer())
 
 
-@router.get("", response={200: List[PostOutWithImageAndTags], 401: Error})
+@router.get("/me", response={200: List[PostOutWithImageAndTags], 401: Error})
 def get_posts(request):
     if request.auth == 401:
         return 401, Error(detail="Unauthorized")
     return Post.objects.filter(author=request.auth.get("id"), is_deleted=False).all()
 
 
-@router.get("/{post_id}", response={200: PostOutWithImageAndTags, 401: Error})
+@router.get("/bookmarks", response={200: List[PostOutWithImageAndTags], 401: Error})
+def get_posts(request):
+    if request.auth == 401:
+        return 401, Error(detail="Unauthorized")
+    return Post.objects.filter(
+        is_deleted=False, bookmarks__in=[request.auth.get("id")]
+    ).all()
+
+
+@router.get("/{post_id}", response={200: PostOutWithAll, 401: Error})
 def get_post(request, post_id: int):
     if request.auth == 401:
         return 401, Error(detail="Unauthorized")
-    return get_object_or_404(Post, id=post_id, is_deleted=False)
+    post = Post.objects.filter(id=post_id, is_deleted=False).get()
+    return post
 
 
 @router.post("", response={200: PostOutWithImageAndTags, 401: Error})

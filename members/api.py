@@ -1,7 +1,6 @@
 from django.contrib.auth.hashers import make_password
 from django.shortcuts import get_object_or_404
 from ninja import Router, UploadedFile, File
-from ninja.responses import codes_4xx
 
 from accounts.schema import (
     AuthBearer,

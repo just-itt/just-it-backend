@@ -125,7 +125,7 @@ def create_post_reply(request, post_id: int, payload: ReplyIn):
 
 
 @router.patch("/{post_id}/replies/{reply_id}", response={200: ReplyOut, 401: Error})
-def update_post_reply(request, reply_id: int, payload: ReplyIn):
+def update_post_reply(request, post_id: int, reply_id: int, payload: ReplyIn):
     if request.auth == 401:
         return 401, Error(detail="Unauthorized")
     reply = get_object_or_404(
@@ -137,7 +137,7 @@ def update_post_reply(request, reply_id: int, payload: ReplyIn):
 
 
 @router.delete("/{post_id}/replies/{reply_id}", response={200: Message, 401: Error})
-def delete_post_reply(request, reply_id: int):
+def delete_post_reply(request, post_id: int, reply_id: int):
     if request.auth == 401:
         return 401, Error(detail="Unauthorized")
     reply = get_object_or_404(

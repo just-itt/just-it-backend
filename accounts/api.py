@@ -31,7 +31,7 @@ def login(request, payload: Login):
         Member, email=payload.email, status=MemberStatusEnum.ACTIVE.value
     )
     if not check_password(payload.password, member.password):
-        return 400, Error(message="Password is not correct")
+        return 400, Error(detail="Password is not correct")
     token = AuthBearer().create_token(member.pk, payload.email)
     member.last_login_at = datetime.datetime.utcnow()
     member.save()
@@ -41,7 +41,7 @@ def login(request, payload: Login):
 @router.post("/join", response={200: Message, 400: Error})
 def join(request, payload: Join):
     if Member.objects.filter(email=payload.email):
-        return 400, Error(message="Email already exists")
+        return 400, Error(detail="Email already exists")
     nickname = make_nickname()
     while True:
         if Member.objects.filter(nickname=nickname):
@@ -51,13 +51,13 @@ def join(request, payload: Join):
     Member.objects.create(
         email=payload.email, password=make_password(payload.password), nickname=nickname
     )
-    return Message(message="Success!")
+    return Message(detail="Success!")
 
 
 @router.post("/email-auth/send", response={200: Message, 400: Error})
 def join_auth_send(request, payload: EmailAuthentication):
     if Member.objects.filter(email=payload.email):
-        return 400, Error(message="Email already authorized")
+        return 400, Error(detail="Email already authorized")
     auth_code = make_auth_code()
     EmailAuth.objects.create(
         email=payload.email,
@@ -71,7 +71,7 @@ def join_auth_send(request, payload: EmailAuthentication):
         body=f"회원 가입 인증 코드는 [{auth_code}]입니다.",
         to=[payload.email],
     ).send()
-    return Message(message="Success!")
+    return Message(detail="Success!")
 
 
 @router.post("/email-auth/check", response={200: Message, 400: Error})
@@ -81,13 +81,13 @@ def join_auth_check(request, payload: EmailAuthenticationCode):
     ).last()
     utc_now = datetime.datetime.utcnow()
     if email_auth.auth_code != payload.auth_code:
-        return 400, Error(message="Authentication code is not valid")
+        return 400, Error(detail="Authentication code is not valid")
     if email_auth.expire_at < utc_now:
-        return 400, Error(message="Authentication code has expired")
+        return 400, Error(detail="Authentication code has expired")
     EmailAuth.objects.filter(
         email=payload.email, type=EmailAuthenticationTypeEnum.JOIN.value
     ).all().delete()
-    return Message(message="Success!")
+    return Message(detail="Success!")
 
 
 @router.post("/find-pw/send", response={200: Message})
@@ -106,7 +106,7 @@ def find_password_auth_send(request, payload: EmailAuthentication):
         body=f"비밀 번호 찾기 인증 코드는 [{auth_code}]입니다.",
         to=[payload.email],
     ).send()
-    return Message(message="Success!")
+    return Message(detail="Success!")
 
 
 @router.post("/find-pw/check", response={200: Message, 400: Error})
@@ -118,12 +118,12 @@ def find_password_auth_check(request, payload: EmailAuthenticationCode):
         is_auth=False,
     ).last()
     if not email_auth:
-        return 400, Error(message="Email authentication has not been completed")
+        return 400, Error(detail="Email authentication has not been completed")
     if email_auth.auth_code != payload.auth_code:
-        return 400, Error(message="Authentication code is not valid")
+        return 400, Error(detail="Authentication code is not valid")
     email_auth.is_auth = True
     email_auth.save()
-    return Message(message="Success!")
+    return Message(detail="Success!")
 
 
 @router.patch("/reset-pw", response={200: Message, 400: Error})
@@ -135,7 +135,7 @@ def reset_password(request, payload: Login):
         expire_at__gte=datetime.datetime.utcnow(),
     )
     if not email_auth:
-        return 400, Error(message="Email authentication has not been completed")
+        return 400, Error(detail="Email authentication has not been completed")
     member = get_object_or_404(
         Member, email=payload.email, status=MemberStatusEnum.ACTIVE.value
     )
@@ -144,4 +144,4 @@ def reset_password(request, payload: Login):
     EmailAuth.objects.filter(
         email=payload.email, type=EmailAuthenticationTypeEnum.PASSWORD.value
     ).all().delete()
-    return Message(message="Success!")
+    return Message(detail="Success!")

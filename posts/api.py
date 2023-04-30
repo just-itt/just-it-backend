@@ -1,15 +1,22 @@
 from typing import List, Optional
 
 from django.shortcuts import get_object_or_404
-from ninja import Router, UploadedFile, File, Form
+from ninja import Router, UploadedFile, File
 
 from accounts.schema import (
     AuthBearer,
 )
 from common.schema import Error, Message
 from common.utils.s3_upload import S3ImgUploader
-from posts.models import Post, Image
-from posts.schema import PostOutWithImageAndTags, CreatePost, UpdatePost
+from posts.models import Post, Image, Reply
+from posts.schema import (
+    PostOutWithImageAndTags,
+    CreatePost,
+    UpdatePost,
+    ReplyIn,
+    PostOutWithAll,
+    ReplyOut,
+)
 
 router = Router(auth=AuthBearer())
 
@@ -103,4 +110,39 @@ def delete_post_bookmark(request, post_id: int):
         return 401, Error(detail="Unauthorized")
     post = get_object_or_404(Post, id=post_id, is_deleted=False)
     post.bookmarks.remove(request.auth.get("id"))
+    return Message(detail="Success!")
+
+
+@router.post("/{post_id}/replies", response={200: ReplyOut, 401: Error})
+def create_post_reply(request, post_id: int, payload: ReplyIn):
+    if request.auth == 401:
+        return 401, Error(detail="Unauthorized")
+    post = get_object_or_404(Post, id=post_id, is_deleted=False)
+    reply = Reply.objects.create(
+        post=post, author_id=request.auth.get("id"), content=payload.content
+    )
+    return reply
+
+
+@router.patch("/{post_id}/replies/{reply_id}", response={200: ReplyOut, 401: Error})
+def update_post_reply(request, reply_id: int, payload: ReplyIn):
+    if request.auth == 401:
+        return 401, Error(detail="Unauthorized")
+    reply = get_object_or_404(
+        Reply, author_id=request.auth.get("id"), id=reply_id, is_deleted=False
+    )
+    reply.content = payload.content
+    reply.save()
+    return reply
+
+
+@router.delete("/{post_id}/replies/{reply_id}", response={200: Message, 401: Error})
+def delete_post_reply(request, reply_id: int):
+    if request.auth == 401:
+        return 401, Error(detail="Unauthorized")
+    reply = get_object_or_404(
+        Reply, id=reply_id, author_id=request.auth.get("id"), is_deleted=False
+    )
+    reply.is_deleted = True
+    reply.save()
     return Message(detail="Success!")

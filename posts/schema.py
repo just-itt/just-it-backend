@@ -3,12 +3,26 @@ from typing import Optional, List
 
 from ninja import Schema, Field
 
+from members.schema import MemberOut
 from tags.schema import TagOptionOutWithTag
 
 
 class PostImageOut(Schema):
     image: str
     ratio: str
+
+
+class ReplyIn(Schema):
+    content: str
+
+
+class ReplyOut(Schema):
+    id: int
+    post_id: int
+    content: str
+    author: MemberOut
+    created_at: datetime
+    updated_at: Optional[datetime]
 
 
 class PostIn(Schema):

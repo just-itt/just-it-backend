@@ -51,7 +51,9 @@ def update_post(
     if request.auth == 401:
         return 401, Error(detail="Unauthorized")
 
-    post = get_object_or_404(Post, id=post_id, is_deleted=False)
+    post = get_object_or_404(
+        Post, id=post_id, author_id=request.auth.get("id"), is_deleted=False
+    )
     for attr, value in payload.dict().items():
         if value and (attr == "title" or attr == "content"):
             setattr(post, attr, value)
@@ -78,7 +80,9 @@ def delete_post(request, post_id: int):
     if request.auth == 401:
         return 401, Error(detail="Unauthorized")
 
-    post = get_object_or_404(Post, id=post_id, is_deleted=False)
+    post = get_object_or_404(
+        Post, id=post_id, author_id=request.auth.get("id"), is_deleted=False
+    )
     post.is_deleted = True
     post.save()
     return Message(detail="Success!")

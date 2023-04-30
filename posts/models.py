@@ -8,6 +8,7 @@ class Post(models.Model):
     title = models.CharField(max_length=128)
     content = models.TextField()
     author = models.ForeignKey(Member, on_delete=models.CASCADE)
+    bookmarks = models.ManyToManyField(Member, related_name="bookmarks")
     tag_options = models.ManyToManyField(Option)
     is_deleted = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)

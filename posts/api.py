@@ -56,9 +56,10 @@ def update_post(
         if value and (attr == "title" or attr == "content"):
             setattr(post, attr, value)
     post.tag_options.set(payload.tag_options)
-    post.save()
 
     if image:
+        if not payload.ratio:
+            return 400, Error(detail="Ratio cannot be null")
         post_image = Image.objects.get(post=post)
         S3ImgUploader().delete(post_image.image)
         post_image.delete()
@@ -68,6 +69,7 @@ def update_post(
         post_image = Image.objects.get(post=post)
         post_image.ratio = payload.ratio
         post_image.save()
+    post.save()
     return post
 
 

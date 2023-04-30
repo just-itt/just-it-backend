@@ -95,7 +95,7 @@ def delete_post(request, post_id: int):
     return Message(detail="Success!")
 
 
-@router.post("/{post_id}/bookmark", response={200: Message, 401: Error})
+@router.post("/{post_id}/bookmarks", response={200: Message, 401: Error})
 def create_post_bookmark(request, post_id: int):
     if request.auth == 401:
         return 401, Error(detail="Unauthorized")
@@ -104,7 +104,7 @@ def create_post_bookmark(request, post_id: int):
     return Message(detail="Success!")
 
 
-@router.delete("/{post_id}/bookmark", response={200: Message, 401: Error})
+@router.delete("/{post_id}/bookmarks", response={200: Message, 401: Error})
 def delete_post_bookmark(request, post_id: int):
     if request.auth == 401:
         return 401, Error(detail="Unauthorized")

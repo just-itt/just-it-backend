@@ -4,6 +4,7 @@ from typing import Optional, List
 from ninja import Schema, Field
 
 from members.schema import MemberOut
+from posts.models import Post
 from tags.schema import TagOptionOutWithTag
 
 
@@ -52,3 +53,23 @@ class PostOut(Schema):
 class PostOutWithImageAndTags(PostOut):
     image: PostImageOut
     tag_options: List[TagOptionOutWithTag] = None
+
+
+class PostOutWithAll(PostOutWithImageAndTags):
+    replies: List[ReplyOut] = Field(..., alias="reply_set")
+    is_bookmark: bool
+
+    @staticmethod
+    def resolve_replies(obj):
+        replies = []
+        for reply in obj:
+            if reply.is_deleted:
+                replies.append(reply)
+        return replies
+
+    @staticmethod
+    def resolve_is_bookmark(obj):
+        is_bookmark = Post.objects.filter(
+            is_deleted=False, bookmarks__in=[obj.author_id]
+        ).exists()
+        return is_bookmark

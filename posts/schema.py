@@ -63,7 +63,7 @@ class PostOutWithAll(PostOutWithImageAndTags):
     def resolve_replies(obj):
         replies = []
         for reply in obj:
-            if reply.is_deleted:
+            if not reply.is_deleted:
                 replies.append(reply)
         return replies
 

@@ -91,7 +91,7 @@ def update_password(request, payload: UpdatePassword):
     member = get_object_or_404(
         Member, id=request.auth.get("id"), status=MemberStatusEnum.ACTIVE.value
     )
-    if member.password != make_password(payload.origin_password):
+    if not check_password(payload.origin_password, member.password):
         return 400, Error(detail="Password is not correct")
     member.password = make_password(payload.new_password)
     member.save()

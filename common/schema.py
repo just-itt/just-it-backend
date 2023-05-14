@@ -7,3 +7,7 @@ class Message(Schema):
 
 class Error(Schema):
     detail: str
+
+
+class IsSame(Schema):
+    is_same: bool

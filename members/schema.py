@@ -28,3 +28,7 @@ class MemberOut(Schema):
 class UpdatePassword(Schema):
     origin_password: str
     new_password: str
+
+
+class Password(Schema):
+    password: str

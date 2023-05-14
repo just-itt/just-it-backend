@@ -20,6 +20,7 @@ from posts.schema import (
     ReplyOut,
     PostFilters,
 )
+from tags.models import Customization
 
 router = Router(auth=AuthBearer())
 
@@ -38,6 +39,21 @@ def get_posts(request, filters: PostFilters = Query(...)):
         )
     if filters.tag_options:
         search_query.add(Q(tag_options__in=filters.tag_options), search_query.AND)
+    search_query.add(Q(is_deleted=False), search_query.AND)
+    return Post.objects.filter(search_query).order_by("-created_at").all()
+
+
+@router.get("/custom", response={200: List[PostOutWithImageAndTags], 401: Error})
+@paginate
+def get_customization_posts(request):
+    if request.auth == 401:
+        return 401, Error(detail="Unauthorized")
+    search_query = Q()
+    if Customization.objects.filter(member_id=request.auth.get("id")).exists():
+        custom_tag = Customization.objects.get(member_id=request.auth.get("id"))
+        search_query.add(
+            Q(tag_options__in=custom_tag.tag_options.filter()), search_query.AND
+        )
     search_query.add(Q(is_deleted=False), search_query.AND)
     return Post.objects.filter(search_query).order_by("-created_at").all()
 

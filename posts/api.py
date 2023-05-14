@@ -22,6 +22,14 @@ from posts.schema import (
 router = Router(auth=AuthBearer())
 
 
+@router.get("/now", response={200: List[PostOutWithImageAndTags], 401: Error})
+@paginate
+def get_posts(request):
+    if request.auth == 401:
+        return 401, Error(detail="Unauthorized")
+    return Post.objects.filter(is_deleted=False).order_by("-created_at").all()
+
+
 @router.get("/me", response={200: List[PostOutWithImageAndTags], 401: Error})
 @paginate
 def get_my_posts(request):

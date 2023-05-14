@@ -19,7 +19,7 @@ def get_tags(request):
     return Tag.objects.prefetch_related("option_set")
 
 
-@router.get("/me", response={200: CustomizationTagOut, 401: Error})
+@router.get("/custom", response={200: CustomizationTagOut, 401: Error})
 def get_customization_tags(request):
     if request.auth == 401:
         return 401, Error(detail="Unauthorized")
@@ -27,7 +27,7 @@ def get_customization_tags(request):
     return custom_tag
 
 
-@router.post("/me", response={200: CustomizationTagOut, 401: Error})
+@router.post("/custom", response={200: CustomizationTagOut, 401: Error})
 def create_customization_tags(request, payload: CustomizationTagIn):
     if request.auth == 401:
         return 401, Error(detail="Unauthorized")

@@ -2,6 +2,7 @@ from typing import List, Optional
 
 from django.shortcuts import get_object_or_404
 from ninja import Router, UploadedFile, File
+from ninja.pagination import paginate
 
 from accounts.schema import (
     AuthBearer,
@@ -22,14 +23,16 @@ router = Router(auth=AuthBearer())
 
 
 @router.get("/me", response={200: List[PostOutWithImageAndTags], 401: Error})
-def get_posts(request):
+@paginate
+def get_my_posts(request):
     if request.auth == 401:
         return 401, Error(detail="Unauthorized")
     return Post.objects.filter(author=request.auth.get("id"), is_deleted=False).all()
 
 
 @router.get("/bookmarks", response={200: List[PostOutWithImageAndTags], 401: Error})
-def get_posts(request):
+@paginate
+def get_bookmark_posts(request):
     if request.auth == 401:
         return 401, Error(detail="Unauthorized")
     return Post.objects.filter(

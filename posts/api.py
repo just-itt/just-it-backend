@@ -2,7 +2,7 @@ from typing import List, Optional
 
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
-from ninja import Router, UploadedFile, File
+from ninja import Router, UploadedFile, File, Query
 from ninja.pagination import paginate
 
 from accounts.schema import (
@@ -18,31 +18,26 @@ from posts.schema import (
     ReplyIn,
     PostOutWithAll,
     ReplyOut,
+    PostFilters,
 )
 
 router = Router(auth=AuthBearer())
 
 
-@router.get("/now", response={200: List[PostOutWithImageAndTags], 401: Error})
+@router.get("", response={200: List[PostOutWithImageAndTags], 401: Error})
 @paginate
-def get_posts(request):
-    if request.auth == 401:
-        return 401, Error(detail="Unauthorized")
-    return Post.objects.filter(is_deleted=False).order_by("-created_at").all()
-
-
-@router.get(
-    "/search/{search_word}", response={200: List[PostOutWithImageAndTags], 401: Error}
-)
-@paginate
-def get_posts(request, search_word: str):
+def get_posts(request, filters: PostFilters = Query(...)):
     if request.auth == 401:
         return 401, Error(detail="Unauthorized")
     search_query = Q()
-    search_query.add(
-        Q(title__icontains=search_word) | Q(content__icontains=search_word),
-        search_query.AND,
-    )
+    if filters.search_word:
+        search_query.add(
+            Q(title__icontains=filters.search_word)
+            | Q(content__icontains=filters.search_word),
+            search_query.AND,
+        )
+    if filters.tag_options:
+        search_query.add(Q(tag_options__in=filters.tag_options), search_query.AND)
     search_query.add(Q(is_deleted=False), search_query.AND)
     return Post.objects.filter(search_query).order_by("-created_at").all()
 

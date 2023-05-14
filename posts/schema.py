@@ -73,3 +73,8 @@ class PostOutWithAll(PostOutWithImageAndTags):
             is_deleted=False, bookmarks__in=[obj.author_id]
         ).exists()
         return is_bookmark
+
+
+class PostFilters(Schema):
+    search_word: Optional[str] = Field(None)
+    tag_options: Optional[List[int]] = Field(None)

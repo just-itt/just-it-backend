@@ -27,7 +27,11 @@ router = Router(auth=AuthBearer())
 def get_my_posts(request):
     if request.auth == 401:
         return 401, Error(detail="Unauthorized")
-    return Post.objects.filter(author=request.auth.get("id"), is_deleted=False).all()
+    return (
+        Post.objects.filter(author=request.auth.get("id"), is_deleted=False)
+        .order_by("-created_at")
+        .all()
+    )
 
 
 @router.get("/bookmarks", response={200: List[PostOutWithImageAndTags], 401: Error})
@@ -35,9 +39,11 @@ def get_my_posts(request):
 def get_bookmark_posts(request):
     if request.auth == 401:
         return 401, Error(detail="Unauthorized")
-    return Post.objects.filter(
-        is_deleted=False, bookmarks__in=[request.auth.get("id")]
-    ).all()
+    return (
+        Post.objects.filter(is_deleted=False, bookmarks__in=[request.auth.get("id")])
+        .order_by("-created_at")
+        .all()
+    )
 
 
 @router.get("/{post_id}", response={200: PostOutWithAll, 401: Error})

@@ -9,6 +9,7 @@ from accounts.schema import (
     AuthBearer,
 )
 from common.schema import Error, Message
+from common.utils.auth import custom_auth
 from common.utils.s3_upload import S3ImgUploader
 from posts.models import Post, Image, Reply
 from posts.schema import (
@@ -97,9 +98,10 @@ def get_bookmark_posts(request, filters: PostFilters = Query(...)):
     return Post.objects.filter(search_query).order_by("-created_at").all()
 
 
-@router.get("/{post_id}", auth=None, response={200: PostOutWithAll})
+@router.get("/{post_id}", auth=custom_auth, response={200: PostOutWithAll})
 def get_post(request, post_id: int):
     post = Post.objects.filter(id=post_id, is_deleted=False).get()
+    post.request = request
     return post
 
 

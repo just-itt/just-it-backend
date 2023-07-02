@@ -58,26 +58,43 @@ def get_customization_posts(request):
 
 @router.get("/me", response={200: List[PostOutWithImageAndTags], 401: Error})
 @paginate
-def get_my_posts(request):
+def get_my_posts(request, filters: PostFilters = Query(...)):
     if request.auth == 401:
         return 401, Error(detail="Unauthorized")
-    return (
-        Post.objects.filter(author=request.auth.get("id"), is_deleted=False)
-        .order_by("-created_at")
-        .all()
+    search_query = Q()
+    search_query.add(
+        Q(author=request.auth.get("id")) & Q(is_deleted=False), search_query.AND
     )
+    if filters.search_word:
+        search_query.add(
+            Q(title__icontains=filters.search_word)
+            | Q(content__icontains=filters.search_word),
+            search_query.AND,
+        )
+    if filters.tag_options:
+        search_query.add(Q(tag_options__in=filters.tag_options), search_query.AND)
+    return Post.objects.filter(search_query).order_by("-created_at").all()
 
 
 @router.get("/bookmarks", response={200: List[PostOutWithImageAndTags], 401: Error})
 @paginate
-def get_bookmark_posts(request):
+def get_bookmark_posts(request, filters: PostFilters = Query(...)):
     if request.auth == 401:
         return 401, Error(detail="Unauthorized")
-    return (
-        Post.objects.filter(is_deleted=False, bookmarks__in=[request.auth.get("id")])
-        .order_by("-created_at")
-        .all()
+    search_query = Q()
+    search_query.add(
+        Q(bookmarks__in=[request.auth.get("id")]) & Q(is_deleted=False),
+        search_query.AND,
     )
+    if filters.search_word:
+        search_query.add(
+            Q(title__icontains=filters.search_word)
+            | Q(content__icontains=filters.search_word),
+            search_query.AND,
+        )
+    if filters.tag_options:
+        search_query.add(Q(tag_options__in=filters.tag_options), search_query.AND)
+    return Post.objects.filter(search_query).order_by("-created_at").all()
 
 
 @router.get("/{post_id}", response={200: PostOutWithAll, 401: Error})

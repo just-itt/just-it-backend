@@ -25,7 +25,7 @@ from tags.models import Customization
 router = Router(auth=AuthBearer())
 
 
-@router.get("", response={200: List[PostOutWithImageAndTags], 401: Error})
+@router.get("", auth=None, response={200: List[PostOutWithImageAndTags]})
 @paginate
 def get_posts(request, filters: PostFilters = Query(...)):
     search_query = Q()

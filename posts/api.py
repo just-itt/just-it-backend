@@ -97,10 +97,8 @@ def get_bookmark_posts(request, filters: PostFilters = Query(...)):
     return Post.objects.filter(search_query).order_by("-created_at").all()
 
 
-@router.get("/{post_id}", response={200: PostOutWithAll, 401: Error})
+@router.get("/{post_id}", auth=None, response={200: PostOutWithAll})
 def get_post(request, post_id: int):
-    if request.auth == 401:
-        return 401, Error(detail="Unauthorized")
     post = Post.objects.filter(id=post_id, is_deleted=False).get()
     return post
 

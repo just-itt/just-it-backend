@@ -28,8 +28,6 @@ router = Router(auth=AuthBearer())
 @router.get("", response={200: List[PostOutWithImageAndTags], 401: Error})
 @paginate
 def get_posts(request, filters: PostFilters = Query(...)):
-    if request.auth == 401:
-        return 401, Error(detail="Unauthorized")
     search_query = Q()
     if filters.search_word:
         search_query.add(

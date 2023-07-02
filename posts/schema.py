@@ -45,7 +45,7 @@ class PostOut(Schema):
     id: int
     title: str
     content: str
-    author_id: int
+    author: MemberOut
     created_at: datetime
     updated_at: Optional[datetime]
 

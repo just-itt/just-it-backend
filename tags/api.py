@@ -12,10 +12,8 @@ from tags.schema import TagOutWithOptions, CustomizationTagIn, CustomizationTagO
 router = Router(auth=AuthBearer())
 
 
-@router.get("", response={200: List[TagOutWithOptions], 401: Error})
+@router.get("", auth=None, response={200: List[TagOutWithOptions], 401: Error})
 def get_tags(request):
-    if request.auth == 401:
-        return 401, Error(detail="Unauthorized")
     return Tag.objects.prefetch_related("option_set")
 
 

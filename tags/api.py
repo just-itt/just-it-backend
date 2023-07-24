@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from ninja import Router
 
@@ -19,12 +19,11 @@ def get_tags(request):
     return Tag.objects.prefetch_related("option_set")
 
 
-@router.get("/custom", response={200: CustomizationTagOut, 401: Error})
+@router.get("/custom", response={200: Optional[CustomizationTagOut], 401: Error})
 def get_customization_tags(request):
     if request.auth == 401:
         return 401, Error(detail="Unauthorized")
-    custom_tag = Customization.objects.get(member_id=request.auth.get("id"))
-    return custom_tag
+    return Customization.objects.filter(member_id=request.auth.get("id")).first()
 
 
 @router.post("/custom", response={200: CustomizationTagOut, 401: Error})

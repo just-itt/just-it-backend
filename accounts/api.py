@@ -1,5 +1,6 @@
 import datetime
 
+from asgiref.sync import sync_to_async
 from django.contrib.auth.hashers import make_password, check_password
 from django.core.mail import EmailMessage
 from django.shortcuts import get_object_or_404
@@ -54,6 +55,7 @@ def join(request, payload: Join):
     return Message(detail="Success!")
 
 
+@sync_to_async
 @router.post("/email-auth/send", response={200: Message, 400: Error})
 def join_auth_send(request, payload: EmailAuthentication):
     if Member.objects.filter(email=payload.email):

@@ -55,6 +55,7 @@ def get_customization_posts(request):
             Q(tag_options__in=custom_tag.tag_options.filter()), search_query.AND
         )
     search_query.add(Q(is_deleted=False), search_query.AND)
+    search_query.add(Q(image__ratio="1:1"), search_query.AND)
     return Post.objects.filter(search_query).order_by("-created_at").all()
 
 

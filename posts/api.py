@@ -37,7 +37,8 @@ def get_posts(request, filters: PostFilters = Query(...)):
             search_query.AND,
         )
     if filters.tag_options:
-        search_query.add(Q(tag_options__in=filters.tag_options), search_query.AND)
+        tag_options = [int(tag_option) for tag_option in filters.tag_options]
+        search_query.add(Q(tag_options__in=tag_options), search_query.AND)
     search_query.add(Q(is_deleted=False), search_query.AND)
     return Post.objects.filter(search_query).order_by("-created_at").all()
 
@@ -75,7 +76,8 @@ def get_my_posts(request, filters: PostFilters = Query(...)):
             search_query.AND,
         )
     if filters.tag_options:
-        search_query.add(Q(tag_options__in=filters.tag_options), search_query.AND)
+        tag_options = [int(tag_option) for tag_option in filters.tag_options]
+        search_query.add(Q(tag_options__in=tag_options), search_query.AND)
     return Post.objects.filter(search_query).order_by("-created_at").all()
 
 
@@ -96,7 +98,8 @@ def get_bookmark_posts(request, filters: PostFilters = Query(...)):
             search_query.AND,
         )
     if filters.tag_options:
-        search_query.add(Q(tag_options__in=filters.tag_options), search_query.AND)
+        tag_options = [int(tag_option) for tag_option in filters.tag_options]
+        search_query.add(Q(tag_options__in=tag_options), search_query.AND)
     return Post.objects.filter(search_query).order_by("-created_at").all()
 
 

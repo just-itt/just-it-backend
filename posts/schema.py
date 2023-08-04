@@ -80,4 +80,4 @@ class PostOutWithAll(PostOutWithImageAndTags):
 
 class PostFilters(Schema):
     search_word: Optional[str] = Field(None)
-    tag_options: Optional[List[int]] = Field(None)
+    tag_options: Optional[List[str]] = Field(None)

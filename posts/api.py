@@ -60,7 +60,7 @@ def get_customization_posts(request):
         )
     search_query.add(Q(is_deleted=False), search_query.AND)
     search_query.add(Q(image__ratio="1:1"), search_query.AND)
-    return Post.objects.filter(search_query).order_by("-created_at").all()
+    return Post.objects.distinct().filter(search_query).order_by("-created_at").all()
 
 
 @router.get("/me", response={200: List[PostOutWithImageAndTags], 401: Error})

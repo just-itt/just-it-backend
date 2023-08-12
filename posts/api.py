@@ -50,6 +50,9 @@ def get_customization_posts(request):
     if (
         request.auth != 401
         and Customization.objects.filter(member_id=request.auth.get("id")).exists()
+        and Customization.objects.get(
+            member_id=request.auth.get("id")
+        ).tag_options.exists()
     ):
         custom_tag = Customization.objects.get(member_id=request.auth.get("id"))
         search_query.add(

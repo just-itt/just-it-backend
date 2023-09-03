@@ -40,7 +40,7 @@ def get_posts(request, filters: PostFilters = Query(...)):
         tag_options = [int(tag_option) for tag_option in filters.tag_options]
         search_query.add(Q(tag_options__in=tag_options), search_query.AND)
     search_query.add(Q(is_deleted=False), search_query.AND)
-    return Post.objects.filter(search_query).order_by("-created_at").all()
+    return Post.objects.distinct().filter(search_query).order_by("-created_at").all()
 
 
 @router.get("/custom", auth=custom_auth, response={200: List[PostOutWithImageAndTags]})
